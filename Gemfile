@@ -12,12 +12,17 @@ gem "bootsnap", require: false
 gem "kamal", require: false
 gem "thruster", require: false
 gem "image_processing", "~> 1.2"
+gem "jwt"
+gem "sqlite_crypto"
+gem "active_model_serializers", "~> 0.10"
+
 group :development, :test do
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
   gem "bundler-audit", require: false
   gem "brakeman", require: false
   gem "rubocop-rails-omakase", require: false
   gem "committee-rails"
+  gem "timecop"
 end
 
 group :test do

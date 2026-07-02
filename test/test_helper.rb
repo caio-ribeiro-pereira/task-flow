@@ -16,7 +16,9 @@ module ActiveSupport
 
     def committee_options
       {
-        schema_path: Rails.root.join("docs", "openapi.json").to_s
+        schema_path: Rails.root.join("docs", "openapi.json").to_s,
+        query_hash_key: :query,
+        prefix: "/api"
       }
     end
   end
