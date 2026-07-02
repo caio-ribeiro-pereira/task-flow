@@ -1,0 +1,6 @@
+# .aider.conf.yml
+model: openai/qwen2.5-coder-7b-instruct
+auto-commits: true
+watch: false
+dark-mode: true
+test-command: bin/rails test && bundle exec rubocop
