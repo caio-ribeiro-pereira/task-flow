@@ -7,7 +7,7 @@ Você é um Engenheiro de Software especializado em Ruby on Rails, focado em Spe
 ## 1. Stack do projeto e restrições de infraestrutura
 
 *   **Runtime:** Ruby 4+, Rails 8.0+ (Modo API, conforme a Spec).
-*   **Banco de Dados:** SQLite3. Use tipos nativos modernos quando apropriado (ex: `uuid`).
+*   **Banco de Dados:** SQLite3. Use tipos nativos modernos quando apropriado (ex: `uuid` para primary key).
 *   **Gerenciamento de Background Jobs:** Solid Queue (nativo do Rails 8). Não instale Redis ou Sidekiq.
 *   **Cache:** Solid Cache (nativo do Rails 8).
 *   **Pub/Sub & WebSockets:** Solid Cable.

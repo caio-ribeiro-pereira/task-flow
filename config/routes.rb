@@ -5,5 +5,7 @@ Rails.application.routes.draw do
     get "usuario" => "users#me"
     post "cadastrar" => "users#create"
     post "login" => "sessions#create"
+
+    resources :projetos, controller: "projects"
   end
 end
