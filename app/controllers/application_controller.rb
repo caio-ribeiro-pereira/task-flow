@@ -11,10 +11,10 @@ class ApplicationController < ActionController::API
   private
 
   def load_user_from_token
-    auth_header = request.headers['Authorization']
+    auth_header = request.headers["Authorization"]
     return nil if auth_header.blank?
 
-    token = auth_header.split(' ').last
+    token = auth_header.split(" ").last
     decoded = JsonWebToken.decode(token)
     return nil unless decoded
 

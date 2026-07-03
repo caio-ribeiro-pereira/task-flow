@@ -1,4 +1,4 @@
-require 'test_helper'
+require "test_helper"
 
 class JsonWebTokenTest < ActiveSupport::TestCase
   def setup

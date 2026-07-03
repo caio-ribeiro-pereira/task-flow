@@ -1,4 +1,4 @@
-require 'jwt'
+require "jwt"
 
 class JsonWebToken
   SECRET_KEY = Rails.application.credentials.secret_key_base
