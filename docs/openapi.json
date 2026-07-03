@@ -22,13 +22,16 @@
                 "type": "object",
                 "properties": {
                   "email": {
-                    "type": "string"
+                    "type": "string",
+                    "format": "email",
+                    "required": true
                   },
                   "password": {
-                    "type": "string"
+                    "type": "string",
+                    "required": true,
+                    "minLength": 8
                   }
-                },
-                "required": ["email", "password"]
+                }
               }
             }
           }
@@ -43,6 +46,14 @@
                   "properties": {
                     "token": {
                       "type": "string"
+                    },
+                    "exp": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "email": {
+                      "type": "string",
+                      "format": "email"
                     }
                   }
                 }
@@ -51,9 +62,6 @@
           },
           "401": {
             "description": "Credenciais inválidas"
-          },
-          "400": {
-            "description": "Requisição inválida"
           }
         }
       }
@@ -69,13 +77,16 @@
                 "type": "object",
                 "properties": {
                   "email": {
-                    "type": "string"
+                    "type": "string",
+                    "format": "email",
+                    "required": true
                   },
                   "password": {
-                    "type": "string"
+                    "type": "string",
+                    "required": true,
+                    "minLength": 8
                   }
-                },
-                "required": ["email", "password"]
+                }
               }
             }
           }
@@ -84,11 +95,48 @@
           "201": {
             "description": "Usuário cadastrado com sucesso"
           },
-          "409": {
-            "description": "Email existente, utilize outro email"
+          "422": {
+            "description": "Email ou senha inválidos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/usuario": {
+      "get": {
+        "summary": "Obter informações do usuário autenticado",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Informações do usuário",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Usuario"
+                }
+              }
+            }
           },
-          "400": {
-            "description": "Requisição inválida"
+          "401": {
+            "description": "Não autorizado"
           }
         }
       }
@@ -424,13 +472,31 @@
   },
   "components": {
     "schemas": {
+      "Usuario": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "019f28f6-bfef-7454-9b2a-d38c8ac91773"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
       "Projeto": {
         "type": "object",
         "properties": {
           "id": {
             "type": "string",
             "format": "uuid",
-            "example": "123e4567-e89b-12d3-a456-426614174000"
+            "example": "019f28f6-bfef-7454-9b2a-d38c8ac91773"
           },
           "name": {
             "type": "string",
@@ -459,7 +525,7 @@
           "id": {
             "type": "string",
             "format": "uuid",
-            "example": "123e4567-e89b-12d3-a456-426614174000"
+            "example": "019f28f6-bfef-7454-9b2a-d38c8ac91773"
           },
           "title": {
             "type": "string",
