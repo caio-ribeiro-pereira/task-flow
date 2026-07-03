@@ -11,8 +11,10 @@ Este documento especifica as regras de negócio, fluxos de API, critérios de ac
 * **Quando** uma requisição HTTP POST for enviada para `/api/cadastrar` contendo o seguinte payload:
 ```json
 {
-  "email": "user@user.com",
-  "password": "SenhaSegura123"
+  "user": {
+    "email": "user@user.com",
+    "password": "SenhaSegura123"
+  }
 }
 ```
 * **Então** o sistema deve criar um novo registro na tabela users com o password criptografado com hash seguro, o status da resposta HTTP deve ser `201 Created` e o corpo da resposta deve retornar vazio.
@@ -31,8 +33,10 @@ Este documento especifica as regras de negócio, fluxos de API, critérios de ac
 * **Quando** uma requisição HTTP POST for enviada para `/api/cadastrar` contendo no campo `"email"` uma string vazia, por exemplo:
 ```json
 {
-  "email": "",
-  "password": "SenhaSegura123"
+  "user": {
+    "email": "",
+    "password": "SenhaSegura123"
+  }
 }
 ```
 * **Então** o sistema não deve criar registro, o status da resposta HTTP deve ser `422 Unprocessable Entity` e o corpo da resposta deve retornar o erro de validação contendo a seguinte resposta:
@@ -46,8 +50,10 @@ Este documento especifica as regras de negócio, fluxos de API, critérios de ac
 * **Quando** uma requisição HTTP POST for enviada para `/api/cadastrar` contendo no campo `"email"` uma string que não está no formato válido de email, por exemplo:
 ```json
 {
-  "email": "invalido_email",
-  "password": "SenhaSegura123"
+  "user": {
+    "email": "invalido_email",
+    "password": "SenhaSegura123"
+  }
 }
 ```
 * **Então** o sistema não deve criar registro, o status da resposta HTTP deve ser `422 Unprocessable Entity` e o corpo da resposta deve retornar o erro de validação contendo a seguinte resposta:
@@ -61,8 +67,10 @@ Este documento especifica as regras de negócio, fluxos de API, critérios de ac
 * **Quando** uma requisição HTTP POST for enviada para `/api/cadastrar` contendo no campo `"password"` uma string vazia, por exemplo:
 ```json
 {
-  "email": "user@email.valido.com",
-  "password": ""
+  "user": {
+    "email": "user@email.valido.com",
+    "password": ""
+  }
 }
 ```
 * **Então** o sistema não deve criar registro, o status da resposta HTTP deve ser `422 Unprocessable Entity` e o corpo da resposta deve retornar o erro de validação contendo a seguinte resposta:
@@ -76,8 +84,10 @@ Este documento especifica as regras de negócio, fluxos de API, critérios de ac
 * **Quando** uma requisição HTTP POST for enviada para `/api/cadastrar` contendo no campo `"password"` uma string de tamanho menor que 8 chars, por exemplo:
 ```json
 {
-  "email": "user@email.valido.com",
-  "password": "123"
+  "user": {
+    "email": "user@email.valido.com",
+    "password": "123"
+  }
 }
 ```
 * **Então** o sistema não deve criar registro, o status da resposta HTTP deve ser `422 Unprocessable Entity` e o corpo da resposta deve retornar o erro de validação contendo a seguinte resposta:
@@ -159,7 +169,7 @@ Este documento especifica as regras de negócio, fluxos de API, critérios de ac
 * O filtro deve interceptar o cabeçalho HTTP Authorization: `Bearer <TOKEN>`, decodificar o payload e injetar o usuário correspondente do banco de dados em uma variável de instância acessível `@current_user`.
 * Caso o token esteja ausente, corrompido, adulterado ou com o tempo de expiração vencido, a requisição deve ser abortada imediatamente retornando status `HTTP 401 Unauthorized` e corpo vazio.
 
-## 3. Diretrizes de QA e Cobertura de Testes para o Agente
+## 4. Diretrizes de QA e Cobertura de Testes para o Agente
 * **Testes unitários:** O agente deve criar e rodar testes unitários para os models usando o Minitest nativo do Rails.
 * Criar `test/factories/user.rb` com o mínimo necessário de preencher com dados de teste todos os campos existentes no model `User`.
 * Criar `test/models/user_test.rb` cobrindo o fluxo de testar validação de sucesso e falha de cada campo do model `User`, utilize a factory `User` para instanciar, salvar, alterar ou excluir um model `User`.

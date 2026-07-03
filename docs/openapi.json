@@ -192,7 +192,12 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Projeto"
+                "type": "object",
+                "properties": {
+                  "project": {
+                    "$ref": "#/components/schemas/Projeto"
+                  }
+                }
               }
             }
           }
@@ -263,15 +268,22 @@
             "schema": {
               "type": "object",
               "properties": {
-                "name": {
-                  "type": "string"
-                },
-                "description": {
-                  "type": "string"
-                },
-                "status": {
-                  "type": "string",
-                  "enum": ["active", "archived"]
+                "project": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "maxLength": 100
+                    },
+                    "description": {
+                      "type": "string",
+                      "maxLength": 2000
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": ["active", "archived"]
+                    }
+                  }
                 }
               }
             }
@@ -375,7 +387,12 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Tarefa"
+                "type": "object",
+                "properties": {
+                  "task": {
+                    "$ref": "#/components/schemas/Tarefa"
+                  }
+                }
               }
             }
           }
@@ -419,7 +436,12 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Tarefa"
+                "type": "object",
+                "properties": {
+                  "task": {
+                    "$ref": "#/components/schemas/Tarefa"
+                  }
+                }
               }
             }
           }
@@ -484,7 +506,7 @@
             "type": "string",
             "format": "email"
           },
-          "createdAt": {
+          "created_at": {
             "type": "string",
             "format": "date-time"
           }
@@ -494,6 +516,11 @@
         "type": "object",
         "properties": {
           "id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "019f28f6-bfef-7454-9b2a-d38c8ac91773"
+          },
+          "user_id": {
             "type": "string",
             "format": "uuid",
             "example": "019f28f6-bfef-7454-9b2a-d38c8ac91773"
@@ -513,7 +540,7 @@
             "default": "active",
             "required": true
           },
-          "createdAt": {
+          "created_at": {
             "type": "string",
             "format": "date-time"
           }
@@ -547,15 +574,15 @@
             "enum": ["low", "medium", "high"],
             "required": true
           },
-          "createdAt": {
+          "created_at": {
             "type": "string",
             "format": "date-time"
           },
-          "completedAt": {
+          "completed_at": {
             "type": "string",
             "format": "date-time"
           },
-          "projectId": {
+          "project_id": {
             "type": "string",
             "format": "uuid"
           }
