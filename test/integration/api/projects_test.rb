@@ -38,6 +38,14 @@ class Api::ProjectsTest < ActionDispatch::IntegrationTest
     assert_response :bad_request
   end
 
+  test "should not create project when project.name is empty" do
+    @project_params[:project][:name] = ""
+    post "/api/projetos", headers: @auth_headers, params: @project_params, as: :json
+
+    assert_response :unprocessable_entity
+    assert_equal [ "Name can't be blank" ], JSON.parse(response.body)["errors"]
+  end
+
   test "should not create project when project.name is too long" do
     @project_params[:project][:name] = "a" * 999
     post "/api/projetos", headers: @auth_headers, params: @project_params, as: :json

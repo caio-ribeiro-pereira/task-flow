@@ -56,6 +56,15 @@ class Api::UsersTest < ActionDispatch::IntegrationTest
     assert_response :created
   end
 
+  test "should not create user with blank email" do
+    @user_params[:user][:email] = ""
+    @user_params[:user][:password] = "SenhaSegura123"
+    post "/api/cadastrar", params: @user_params, as: :json
+
+    assert_response :unprocessable_entity
+    assert_equal [ "Email can't be blank", "Email is invalid" ], JSON.parse(response.body)["errors"]
+  end
+
   test "should not create user with duplicate email" do
     post "/api/cadastrar", params: @user_params, as: :json
 
@@ -65,10 +74,20 @@ class Api::UsersTest < ActionDispatch::IntegrationTest
 
   test "should not create user with invalid email" do
     @user_params[:user][:email] = "invalid_email"
+    @user_params[:user][:password] = "SenhaSegura123"
     post "/api/cadastrar", params: @user_params, as: :json
 
     assert_response :unprocessable_entity
     assert_equal [ "Email is invalid" ], JSON.parse(response.body)["errors"]
+  end
+
+  test "should not create user with blank password" do
+    @user_params[:user][:email] = "novouser@novouser2.com"
+    @user_params[:user][:password] = ""
+    post "/api/cadastrar", params: @user_params, as: :json
+
+    assert_response :unprocessable_entity
+    assert_equal [ "Password can't be blank", "Password is too short (minimum is 8 characters)" ], JSON.parse(response.body)["errors"]
   end
 
   test "should not create user when password is too short" do

@@ -560,8 +560,7 @@
             "required": true
           },
           "description": {
-            "type": "string",
-            "maxLength": 2000
+            "type": "string"
           },
           "status": {
             "type": "string",
@@ -583,6 +582,10 @@
             "format": "date-time"
           },
           "project_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "user_id": {
             "type": "string",
             "format": "uuid"
           }
