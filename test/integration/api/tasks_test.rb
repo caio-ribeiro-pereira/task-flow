@@ -113,4 +113,51 @@ class Api::TasksTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_entity
     assert_equal [ "Status done cannot delete this task" ], JSON.parse(response.body)["errors"]
   end
+
+  test "should update task" do
+    task = create(:task, project: @active_project, user: @user_with_projects)
+    patch "/api/tarefas/#{task.id}", headers: @auth_headers_with_projects, params: @task_params, as: :json
+
+    assert_response :ok
+    json = JSON.parse(response.body)
+    assert_equal @task_params[:task][:title], json["title"]
+    assert_equal @active_project.id, json["project_id"]
+    assert_equal @user_with_projects.id, json["user_id"]
+  end
+
+  test "should not update task status pending to done" do
+    task = create(:task, :pending, project: @active_project, user: @user_with_projects)
+    task_done_params = { task: { status: "done" } }
+    patch "/api/tarefas/#{task.id}", headers: @auth_headers_with_projects, params: task_done_params, as: :json
+
+    assert_response :unprocessable_entity
+    assert_equal [ "Status cannot change from pending to done" ], JSON.parse(response.body)["errors"]
+  end
+
+  test "should not update task status in_progress to pending" do
+    task = create(:task, :in_progress, project: @active_project, user: @user_with_projects)
+    task_pending_params = { task: { status: "pending" } }
+    patch "/api/tarefas/#{task.id}", headers: @auth_headers_with_projects, params: task_pending_params, as: :json
+
+    assert_response :unprocessable_entity
+    assert_equal [ "Status cannot change from in progress to pending" ], JSON.parse(response.body)["errors"]
+  end
+
+  test "should not update task status done to in_progress" do
+    task = create(:task, :completed, project: @active_project, user: @user_with_projects)
+    task_in_progress_params = { task: { status: "in_progress" } }
+    patch "/api/tarefas/#{task.id}", headers: @auth_headers_with_projects, params: task_in_progress_params, as: :json
+
+    assert_response :unprocessable_entity
+    assert_equal [ "Status cannot change from done to in progress" ], JSON.parse(response.body)["errors"]
+  end
+
+  test "should not update task status done to pending" do
+    task = create(:task, :completed, project: @active_project, user: @user_with_projects)
+    task_pending_params = { task: { status: "pending" } }
+    patch "/api/tarefas/#{task.id}", headers: @auth_headers_with_projects, params: task_pending_params, as: :json
+
+    assert_response :unprocessable_entity
+    assert_equal [ "Status cannot change from done to pending" ], JSON.parse(response.body)["errors"]
+  end
 end

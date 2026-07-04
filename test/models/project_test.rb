@@ -40,4 +40,9 @@ class ProjectTest < ActiveSupport::TestCase
     project = build(:project, @project_params.except(:status))
     assert_equal "active", project.status
   end
+
+  test "user_id should not be nil" do
+    project = build(:project, @project_params.merge(user_id: nil))
+    assert_not project.valid?
+  end
 end

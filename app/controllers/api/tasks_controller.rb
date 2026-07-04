@@ -17,8 +17,20 @@ module Api
       end
     end
 
+    def update
+      task = Task.find_by(id: params[:task_id], user_id: @current_user.id)
+
+      return head :no_content unless task
+
+      if task.update(update_params)
+        render json: task, serializer: TaskSerializer, status: :ok
+      else
+        render json: { errors: task.errors.full_messages }, status: :unprocessable_entity
+      end
+    end
+
     def destroy
-      task = Task.find_by(id: params[:id], user_id: @current_user.id)
+      task = Task.find_by(id: params[:task_id], user_id: @current_user.id)
 
       if task.destroy
         head :no_content
@@ -40,6 +52,10 @@ module Api
       params.require(:task)
         .permit(:title, :description, :status, :priority)
         .merge(user_id: @current_user.id, project_id: params[:project_id])
+    end
+
+    def update_params
+      create_params.except(:project_id)
     end
   end
 end

@@ -33,7 +33,7 @@ Este documento especifica as regras de negócio, fluxos de API, critérios de ac
 }
 ```
 
-### Cenário 1: Cadastro de tarefa com status done do projeto de um usuário
+### Cenário 2: Cadastro de tarefa com status done do projeto de um usuário
 * **Dado que** o usuário está autenticado no sistema e possui um token válido.
 * **Quando** uma requisição HTTP POST for enviada para `/api/projetos/{project_id}/tarefas`, em que `project_id` é um id de projeto do usuário, o token do usuário autenticado é informado via header `Authorization: Bearer <TOKEN>` e é enviado o seguinte payload:
 ```json
@@ -52,7 +52,7 @@ Este documento especifica as regras de negócio, fluxos de API, critérios de ac
   "id": "019f28f6-bfef-7454-9b2a-d38c8ac91790",
   "title": "Tarefa X",
   "description": "Descrição da tarefa X",
-  "status": "pending",
+  "status": "done",
   "priority": "low",
   "created_at": "2026-07-03T11:28:18-03:00",
   "completed_at": "2026-07-03T11:28:18-03:00",
@@ -296,7 +296,240 @@ Este documento especifica as regras de negócio, fluxos de API, critérios de ac
 }
 ```
 
-## 4. Requisitos Não Funcionais: Regras de arquitetura, modelagem e segurança
+## 4. Requisitos Funcionais: Edição de Tarefas do Projeto de um Usuário & Critérios de Aceitação
+
+### Cenário 1: Editar tarefa do projeto de um usuário
+* **Dado que** o usuário está autenticado no sistema e possui um token válido.
+* **Quando** uma requisição HTTP PATCH for enviada para `/api/tarefas/{task_id}`, em que `task_id` é um id de tarefa do usuário, o token do usuário autenticado é informado via header `Authorization: Bearer <TOKEN>` e é enviado o seguinte payload:
+```json
+{
+  "task": {
+    "title": "Tarefa X",
+    "description": "Descrição da tarefa X",
+    "priority": "low"
+  }
+}
+```
+* **Então** o sistema deve editar o registro na tabela tasks, o status da resposta HTTP deve ser `200 OK` e o corpo da resposta deve retornar:
+```json
+{
+  "id": "019f28f6-bfef-7454-9b2a-d38c8ac91790",
+  "title": "Tarefa X",
+  "description": "Descrição da tarefa X",
+  "status": "pending",
+  "priority": "low",
+  "created_at": "2026-07-03T11:28:18-03:00",
+  "completed_at": null,
+  "project_id": "019f28f6-bfef-7454-9b2a-d38c8ac91800",
+  "user_id": "019f28f6-bfef-7454-9b2a-d38c8ac91779"
+}
+```
+
+### Cenário 2: Editar tarefa com status done
+* **Dado que** o usuário está autenticado no sistema e possui um token válido.
+* **Quando** uma requisição HTTP PATCH for enviada para `/api/tarefas/{task_id}`, em que `task_id` é um id de tarefa do usuário, o token do usuário autenticado é informado via header `Authorization: Bearer <TOKEN>` e é enviado o seguinte payload:
+```json
+{
+  "task": {
+    "title": "Tarefa X",
+    "description": "Descrição da tarefa X",
+    "priority": "low",
+    "status": "done"
+  }
+}
+```
+* **Então** o sistema deve editar o registro na tabela tasks com completed_at com valor de timestamp do momento da edição, o status da resposta HTTP deve ser `200 OK` e o corpo da resposta deve retornar:
+```json
+{
+  "id": "019f28f6-bfef-7454-9b2a-d38c8ac91790",
+  "title": "Tarefa X",
+  "description": "Descrição da tarefa X",
+  "status": "done",
+  "priority": "low",
+  "created_at": "2026-07-03T11:28:18-03:00",
+  "completed_at": "2026-07-03T11:28:18-05:00",
+  "project_id": "019f28f6-bfef-7454-9b2a-d38c8ac91800",
+  "user_id": "019f28f6-bfef-7454-9b2a-d38c8ac91779"
+}
+```
+
+### Cenário 3: Falha na edição por titulo em branco
+* **Dado que** o usuário está autenticado no sistema e possui um token válido.
+* **Quando** uma requisição HTTP PATCH for enviada para `/api/tarefas/{task_id}`, em que `task_id` é um id de tarefa do usuário, o token do usuário autenticado é informado via header `Authorization: Bearer <TOKEN>` e é enviado o seguinte payload:
+```json
+{
+  "task": {
+    "title": "",
+    "description": "Descrição da tarefa X",
+    "priority": "low"
+  }
+}
+```
+* **Então** o sistema não deve editar registro, o status da resposta HTTP deve ser `422 Unprocessable Entity` e o corpo da resposta deve retornar o erro de validação contendo a seguinte resposta:
+``` json
+{
+  "errors": ["Title can't be blank"]
+}
+```
+
+### Cenário 4: Falha na edição por titulo muito longo
+* **Dado que** o usuário está autenticado no sistema e possui um token válido.
+* **Quando** uma requisição HTTP PATCH for enviada para `/api/tarefas/{task_id}`, em que `task_id` é um id de tarefa do usuário, o token do usuário autenticado é informado via header `Authorization: Bearer <TOKEN>` e é enviado o seguinte payload:
+```json
+{
+  "task": {
+    "title": "TITULO MUITO LONGO QUE SUPERA LIMITE DE 200 CARACTERES TITULO MUITO LONGO QUE SUPERA LIMITE DE 200 CARACTERES TITULO MUITO LONGO QUE SUPERA LIMITE DE 200 CARACTERES TITULO MUITO LONGO QUE SUPERA LIMITE DE 200 CARACTERES",
+    "description": "Descrição da tarefa X",
+    "priority": "low"
+  }
+}
+```
+* **Então** o sistema não deve editar registro, o status da resposta HTTP deve ser `422 Unprocessable Entity` e o corpo da resposta deve retornar o erro de validação contendo a seguinte resposta:
+``` json
+{
+  "errors": ["Title is too long (maximum is 200 characters)"]
+}
+```
+
+### Cenário 5: Falha na edição por prioridade em branco
+* **Dado que** o usuário está autenticado no sistema e possui um token válido.
+* **Quando** uma requisição HTTP PATCH for enviada para `/api/tarefas/{task_id}`, em que `task_id` é um id de tarefa do usuário, o token do usuário autenticado é informado via header `Authorization: Bearer <TOKEN>` e é enviado o seguinte payload:
+```json
+{
+  "task": {
+    "title": "Tarefa X",
+    "description": "Descrição da tarefa X",
+    "priority": ""
+  }
+}
+```
+* **Então** o sistema não deve editar registro, o status da resposta HTTP deve ser `422 Unprocessable Entity` e o corpo da resposta deve retornar o erro de validação contendo a seguinte resposta:
+``` json
+{
+  "errors": ["Priority can't be blank"]
+}
+```
+
+### Cenário 6: Falha na edição por prioridade inválida
+* **Dado que** o usuário está autenticado no sistema e possui um token válido.
+* **Quando** uma requisição HTTP PATCH for enviada para `/api/tarefas/{task_id}`, em que `task_id` é um id de tarefa do usuário, o token do usuário autenticado é informado via header `Authorization: Bearer <TOKEN>` e é enviado o seguinte payload:
+```json
+{
+  "task": {
+    "title": "Tarefa X",
+    "description": "Descrição da tarefa X",
+    "priority": "invalid"
+  }
+}
+```
+* **Então** o sistema não deve editar registro, o status da resposta HTTP deve ser `422 Unprocessable Entity` e o corpo da resposta deve retornar o erro de validação contendo a seguinte resposta:
+``` json
+{
+  "errors": ["Priority is not included in the list"]
+}
+```
+
+### Cenário 7: Falha na edição por status inválido
+* **Dado que** o usuário está autenticado no sistema e possui um token válido.
+* **Quando** uma requisição HTTP PATCH for enviada para `/api/tarefas/{task_id}`, em que `task_id` é um id de tarefa do usuário, o token do usuário autenticado é informado via header `Authorization: Bearer <TOKEN>` e é enviado o seguinte payload:
+```json
+{
+  "task": {
+    "title": "Tarefa X",
+    "description": "Descrição da tarefa X",
+    "status": "invalid",
+    "priority": "low"
+  }
+}
+```
+* **Então** o sistema não deve editar registro, o status da resposta HTTP deve ser `422 Unprocessable Entity` e o corpo da resposta deve retornar o erro de validação contendo a seguinte resposta:
+``` json
+{
+  "errors": ["Status is not included in the list"]
+}
+```
+
+### Cenário 8: Falha na edição na transição de status in_progress para pending
+* **Dado que** o usuário está autenticado no sistema e possui um token válido.
+* **Quando** uma requisição HTTP PATCH for enviada para `/api/tarefas/{task_id}`, em que `task_id` é um id de tarefa com status `in_progress` do usuário, o token do usuário autenticado é informado via header `Authorization: Bearer <TOKEN>` e é enviado o seguinte payload:
+```json
+{
+  "task": {
+    "title": "Tarefa X",
+    "description": "Descrição da tarefa X",
+    "status": "pending",
+    "priority": "low"
+  }
+}
+```
+* **Então** o sistema não deve editar registro, o status da resposta HTTP deve ser `422 Unprocessable Entity` e o corpo da resposta deve retornar o erro de validação contendo a seguinte resposta:
+``` json
+{
+  "errors": ["Status cannot change from in progress to pending"]
+}
+```
+
+### Cenário 9: Falha na edição na transição de status done para in_progress
+* **Dado que** o usuário está autenticado no sistema e possui um token válido.
+* **Quando** uma requisição HTTP PATCH for enviada para `/api/tarefas/{task_id}`, em que `task_id` é um id de tarefa com status `done` do usuário, o token do usuário autenticado é informado via header `Authorization: Bearer <TOKEN>` e é enviado o seguinte payload:
+```json
+{
+  "task": {
+    "title": "Tarefa X",
+    "description": "Descrição da tarefa X",
+    "status": "in_progress",
+    "priority": "low"
+  }
+}
+```
+* **Então** o sistema não deve editar registro, o status da resposta HTTP deve ser `422 Unprocessable Entity` e o corpo da resposta deve retornar o erro de validação contendo a seguinte resposta:
+``` json
+{
+  "errors": ["Status cannot change from done to in progress"]
+}
+```
+
+### Cenário 10: Falha na edição na transição de status done para pending
+* **Dado que** o usuário está autenticado no sistema e possui um token válido.
+* **Quando** uma requisição HTTP PATCH for enviada para `/api/tarefas/{task_id}`, em que `task_id` é um id de tarefa com status `done` do usuário, o token do usuário autenticado é informado via header `Authorization: Bearer <TOKEN>` e é enviado o seguinte payload:
+```json
+{
+  "task": {
+    "title": "Tarefa X",
+    "description": "Descrição da tarefa X",
+    "status": "pending",
+    "priority": "low"
+  }
+}
+```
+* **Então** o sistema não deve editar registro, o status da resposta HTTP deve ser `422 Unprocessable Entity` e o corpo da resposta deve retornar o erro de validação contendo a seguinte resposta:
+``` json
+{
+  "errors": ["Status cannot change from done to pending"]
+}
+```
+
+### Cenário 11: Falha na edição na transição de status pending para done
+* **Dado que** o usuário está autenticado no sistema e possui um token válido.
+* **Quando** uma requisição HTTP PATCH for enviada para `/api/tarefas/{task_id}`, em que `task_id` é um id de tarefa com status `pending` do usuário, o token do usuário autenticado é informado via header `Authorization: Bearer <TOKEN>` e é enviado o seguinte payload:
+```json
+{
+  "task": {
+    "title": "Tarefa X",
+    "description": "Descrição da tarefa X",
+    "status": "done",
+    "priority": "low"
+  }
+}
+```
+* **Então** o sistema não deve editar registro, o status da resposta HTTP deve ser `422 Unprocessable Entity` e o corpo da resposta deve retornar o erro de validação contendo a seguinte resposta:
+``` json
+{
+  "errors": ["Status cannot change from pending to done"]
+}
+```
+
+## 5. Requisitos Não Funcionais: Regras de arquitetura, modelagem e segurança
 
 ### Modelagem
 
@@ -312,7 +545,7 @@ Este documento especifica as regras de negócio, fluxos de API, critérios de ac
 ### Guarda de Rotas Protegidas (Filtro Global de Autenticação)
 * Todos os endpoints de `tasks_controller` devem ser protegidos por autenticação utilizando `before_action :authenticate_request!` que é um método já existente, herdado do `ApplicationController`
 
-## 5. Diretrizes de QA e Cobertura de Testes para o Agente
+## 6. Diretrizes de QA e Cobertura de Testes para o Agente
 * **Testes unitários:** O agente deve criar e rodar testes unitários para os models usando o Minitest nativo do Rails.
 * Criar `test/factories/task.rb` com os dados necessário para modelagem de `Task`.
 * Criar `test/models/task_test.rb` cobrindo o fluxo de testar validação de sucesso e falha de cada campo do model `Task`, utilize a factory `Task` para instanciar, salvar, alterar ou excluir um model `Task`.

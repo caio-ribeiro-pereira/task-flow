@@ -9,7 +9,7 @@ Rails.application.routes.draw do
     resources :projetos, controller: "projects"
     post "projetos/:project_id/tarefas" => "tasks#create"
     get "projetos/:project_id/tarefas" => "tasks#index"
-
-    resources :tarefas, controller: "tasks", only: [ :update, :destroy ]
+    delete "tarefas/:task_id" => "tasks#destroy"
+    patch "tarefas/:task_id" => "tasks#update"
   end
 end
