@@ -174,7 +174,26 @@ Este documento especifica as regras de negócio, fluxos de API, critérios de ac
 }
 ```
 
-### Cenário 5: Falha na edição por id inválido
+### Cenário 5: Falha na edição por status archived quando possuir tarefas em progresso
+* **Dado que** o usuário está autenticado no sistema, possui um token válido e já possui um projeto ativo com tarefas em progresso (`status: "in_progress"`).
+* **Quando** uma requisição HTTP PATCH for enviada para `/api/projetos/{id}`, em que `id` é um ID de projeto cadastrado do usuário, é informado o token do usuário via header `Authorization: Bearer <TOKEN>` e informado o seguinte payload:
+```json
+{
+  "project": {
+    "name": "Projeto",
+    "description": "Descrição do projeto X",
+    "status": "archived"
+  }
+}
+```
+* **Então** o sistema não deve editar o registro, o status da resposta HTTP deve ser `422 Unprocessable Entity` e o corpo da resposta deve retornar o erro de validação contendo a seguinte resposta:
+``` json
+{
+  "errors": ["Status cannot be archived because there are tasks in progress"]
+}
+```
+
+### Cenário 6: Falha na edição por id inválido
 * **Dado que** o usuário está autenticado no sistema, possui um token válido e já possui um projeto cadastrado.
 * **Quando** uma requisição HTTP PATCH for enviada para `/api/projetos/{id}`, em que `id` é um ID inválido, é informado o token do usuário via header `Authorization: Bearer <TOKEN>` e informado o seguinte payload:
 ```json

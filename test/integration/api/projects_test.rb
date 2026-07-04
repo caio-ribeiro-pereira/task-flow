@@ -4,6 +4,7 @@ class Api::ProjectsTest < ActionDispatch::IntegrationTest
   setup do
     @user = create(:user)
     @project = create(:project, user: @user)
+    create(:task, :in_progress, project: @project, user: @user)
     @token = JsonWebToken.encode({ user_id: @user.id })
     @auth_headers = { "Authorization" => "Bearer #{@token}" }
     @user_with_projects = create(:user, email: "user_with_projects@user.com")
@@ -36,6 +37,14 @@ class Api::ProjectsTest < ActionDispatch::IntegrationTest
     post "/api/projetos", headers: @auth_headers, params: {}
 
     assert_response :bad_request
+  end
+
+  test "should not create project when project.name is empty" do
+    @project_params[:project][:name] = ""
+    post "/api/projetos", headers: @auth_headers, params: @project_params, as: :json
+
+    assert_response :unprocessable_entity
+    assert_equal [ "Name can't be blank" ], JSON.parse(response.body)["errors"]
   end
 
   test "should not create project when project.name is too long" do
@@ -120,7 +129,7 @@ class Api::ProjectsTest < ActionDispatch::IntegrationTest
       project: {
         name: "Updated Project",
         description: "This is an updated project",
-        status: "archived"
+        status: "active"
       }
     }
 
@@ -167,5 +176,13 @@ class Api::ProjectsTest < ActionDispatch::IntegrationTest
     patch "/api/projetos/invalid_id", headers: @auth_headers, params: @project_params, as: :json
 
     assert_response :no_content
+  end
+
+  test "should not update project status to archived when there are tasks in progress" do
+    @project_params[:project][:status] = "archived"
+    patch "/api/projetos/#{@project.id}", headers: @auth_headers, params: @project_params, as: :json
+
+    assert_response :unprocessable_entity
+    assert_equal [ "Status cannot be archived because there are tasks in progress" ], JSON.parse(response.body)["errors"]
   end
 end

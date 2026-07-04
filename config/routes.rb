@@ -7,5 +7,9 @@ Rails.application.routes.draw do
     post "login" => "sessions#create"
 
     resources :projetos, controller: "projects"
+    post "projetos/:project_id/tarefas" => "tasks#create"
+    get "projetos/:project_id/tarefas" => "tasks#index"
+    delete "tarefas/:task_id" => "tasks#destroy"
+    patch "tarefas/:task_id" => "tasks#update"
   end
 end

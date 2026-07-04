@@ -5,5 +5,9 @@ FactoryBot.define do
     status { "active" }
 
     association :user, factory: :user
+
+    trait :archived do
+      status { "archived" }
+    end
   end
 end
