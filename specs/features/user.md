@@ -165,7 +165,7 @@ Este documento especifica as regras de negócio, fluxos de API, critérios de ac
 * **Chave de Assinatura:** O token deve ser assinado e validado utilizando a chave secreta nativa da aplicação: `Rails.application.credentials.secret_key_base`.
 
 ### Guarda de Rotas Protegidas (Filtro Global de Autenticação)
-* O agente deve implementar um método de filtro (ex: authenticate_request) no `ApplicationController` para ser herdado por controllers que exijam autenticação no futuro.
+* O agente deve implementar um método de filtro (ex: `authenticate_request!`) no `ApplicationController` para ser herdado por controllers que exijam autenticação no futuro.
 * O filtro deve interceptar o cabeçalho HTTP Authorization: `Bearer <TOKEN>`, decodificar o payload e injetar o usuário correspondente do banco de dados em uma variável de instância acessível `@current_user`.
 * Caso o token esteja ausente, corrompido, adulterado ou com o tempo de expiração vencido, a requisição deve ser abortada imediatamente retornando status `HTTP 401 Unauthorized` e corpo vazio.
 

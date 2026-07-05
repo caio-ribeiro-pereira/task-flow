@@ -125,6 +125,26 @@ class Api::TasksTest < ActionDispatch::IntegrationTest
     assert_equal @user_with_projects.id, json["user_id"]
   end
 
+  test "should update task status pending to in_progress" do
+    task = create(:task, :pending, project: @active_project, user: @user_with_projects)
+    task_in_progress_params = { task: { status: "in_progress" } }
+    patch "/api/tarefas/#{task.id}", headers: @auth_headers_with_projects, params: task_in_progress_params, as: :json
+
+    assert_response :ok
+    json = JSON.parse(response.body)
+    assert_equal "in_progress", json["status"]
+  end
+
+  test "should update task status in_progress to done" do
+    task = create(:task, :in_progress, project: @active_project, user: @user_with_projects)
+    task_done_params = { task: { status: "done" } }
+    patch "/api/tarefas/#{task.id}", headers: @auth_headers_with_projects, params: task_done_params, as: :json
+
+    assert_response :ok
+    json = JSON.parse(response.body)
+    assert_equal "done", json["status"]
+  end
+
   test "should not update task status pending to done" do
     task = create(:task, :pending, project: @active_project, user: @user_with_projects)
     task_done_params = { task: { status: "done" } }
